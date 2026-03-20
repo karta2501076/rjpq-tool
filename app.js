@@ -1,4 +1,4 @@
-// Firebase 配置
+// Firebase 配置 (請保持你的資訊)
 const firebaseConfig = {
   apiKey: "AIzaSyCpJmhpPRxgTSTpZi38DHCaV8ZaLhuKKTc",
   authDomain: "rjpq-tool-2ee82.firebaseapp.com",
@@ -17,7 +17,17 @@ let currentRoomId = null;
 let myNickname = "";
 let myColor = null;
 
-// 介面切換與房號更新
+// 初始化檢查：是否有分享連結帶來的房號？
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomFromUrl = urlParams.get('room');
+    if (roomFromUrl) {
+        // 如果網址有房號，直接跳到暱稱輸入畫面
+        currentRoomId = roomFromUrl;
+        showView('nicknameView');
+    }
+};
+
 function showView(viewId) {
     const views = ['startView', 'createView', 'joinView', 'nicknameView', 'mainGameView'];
     views.forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -89,7 +99,6 @@ function initGrid() {
     }
 }
 
-// 核心互斥邏輯
 function togglePlatform(f, p) {
     if (!myColor) return alert("請先選顏色！");
     const gridRef = db.ref(`rooms/${currentRoomId}/grid`);
@@ -101,9 +110,8 @@ function togglePlatform(f, p) {
             db.ref(`rooms/${currentRoomId}/grid/${f}_${p}`).remove();
             return;
         }
-        if (target && target.color !== myColor) return; // 不可覆蓋他人
+        if (target && target.color !== myColor) return; 
 
-        // 每人每層限一格
         for (let key in gridData) {
             if (key.startsWith(`${f}_`) && gridData[key].color === myColor) {
                 db.ref(`rooms/${currentRoomId}/grid/${key}`).remove();
@@ -117,7 +125,7 @@ function listenToRoom() {
     db.ref(`rooms/${currentRoomId}/grid`).on('value', snapshot => {
         document.querySelectorAll('.p-btn').forEach(btn => {
             btn.style.backgroundColor = ""; btn.classList.remove('disabled');
-            btn.style.color = "#ffffff"; // 數字維持白色
+            btn.style.color = "#ffffff";
             const oldTag = btn.querySelector('.user-tag');
             if (oldTag) oldTag.remove();
         });
@@ -130,7 +138,7 @@ function listenToRoom() {
                     if (data[key].nickname) {
                         const tag = document.createElement('span');
                         tag.className = 'user-tag'; tag.innerText = data[key].nickname;
-                        btn.appendChild(tag); // 顯示右下角暱稱
+                        btn.appendChild(tag);
                     }
                     if (data[key].color !== myColor) btn.classList.add('disabled');
                 }
@@ -141,4 +149,17 @@ function listenToRoom() {
 
 function clearAllPlatforms() {
     if (confirm("確定清空嗎？")) db.ref(`rooms/${currentRoomId}/grid`).remove();
+}
+
+// 分享連結功能
+function copyShareLink() {
+    // 取得當前網址並移除舊的參數，加上新房號
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?room=${currentRoomId}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("分享連結已複製！發給隊友即可直接加入房間。");
+    }).catch(err => {
+        alert("複製失敗，請手動複製網址：" + shareUrl);
+    });
 }
