@@ -22,20 +22,38 @@ let myColor = null;
 // --- 介面切換邏輯 ---
 function showView(viewId) {
     const views = ['startView', 'createView', 'joinView', 'nicknameView', 'mainGameView'];
-    views.forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-    });
+    views.forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById(viewId).classList.remove('hidden');
 
-    // 關鍵修正：切換到暱稱或遊戲畫面時，立即強制更新房號文字顯示
+    // 修正：切換視圖時立即填入房間號碼
     if (currentRoomId) {
-        if (document.getElementById('roomIdDisplay')) {
-            document.getElementById('roomIdDisplay').innerText = currentRoomId;
-        }
-        if (document.getElementById('activeRoomId')) {
-            document.getElementById('activeRoomId').innerText = currentRoomId;
-        }
+        if (document.getElementById('roomIdDisplay')) document.getElementById('roomIdDisplay').innerText = currentRoomId;
+        if (document.getElementById('activeRoomId')) document.getElementById('activeRoomId').innerText = currentRoomId;
     }
+}
+
+// ... 房間邏輯保持不變 ...
+
+function listenToRoom() {
+    db.ref(`rooms/${currentRoomId}/grid`).on('value', snapshot => {
+        // 重置所有按鈕
+        document.querySelectorAll('.p-btn').forEach(btn => {
+            btn.style.backgroundColor = "";
+            btn.style.color = "#ffffff"; // 數字維持白色
+        });
+
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const [f, p] = key.split('_');
+                const btn = document.getElementById(`btn-${f}-${p}`);
+                if (btn) {
+                    btn.style.backgroundColor = data[key].color;
+                    btn.style.color = "#ffffff"; // 填色後數字依然維持白色
+                }
+            });
+        }
+    });
 }
 
 // --- 房間邏輯 ---
