@@ -5,67 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>超讚RJPQ小工具</title>
     <style>
-        /* 基礎樣式與 1.05 倍字體 */
-        body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; background: #1a1a21; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; font-size: 1.05rem; overflow-x: hidden; overflow-y: auto; }
-        .container { background: #2d2d37; padding: 18px 22px; border-radius: 16px; box-shadow: 0 6px 25px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; }
+        /* ====================================================== */
+        /* 電腦網頁版：基礎比例調小 1.05 倍 (約 0.95rem) */
+        /* ====================================================== */
+        body { 
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; 
+            background: #1a1a21; 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            font-size: 0.95rem; 
+            overflow-x: hidden; 
+            overflow-y: auto; 
+        }
         
-        h2 { margin: 0; color: #fff; font-size: 1.58rem; } 
-        .hint-text { font-size: 0.78rem; color: #aaa; margin-bottom: 10px; font-weight: bold; text-align: center; }
+        .container { 
+            background: #2d2d37; 
+            padding: 18px 22px; 
+            border-radius: 16px; 
+            box-shadow: 0 6px 25px rgba(0,0,0,0.6); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            transition: all 0.3s ease;
+        }
         
-        /* 視圖切換與寬度設定 */
+        h2 { margin: 0; color: #fff; font-size: 1.5rem; } 
+        .hint-text { font-size: 0.75rem; color: #aaa; margin-bottom: 10px; font-weight: bold; text-align: center; }
+        
         #startView, #createView, #joinView, #nicknameView { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 380px; }
         #mainGameView { display: flex; flex-direction: row; gap: 15px; align-items: flex-start; }
         .game-main-content { display: flex; flex-direction: column; align-items: center; width: 445px; }
 
-        /* 輸入框設定 16px 防止 iOS 點擊時自動縮放畫面 */
         input { width: 90%; padding: 10px; border-radius: 9px; border: 1px solid #444; background: #1a1a21; color: #fff; font-size: 16px; box-sizing: border-box; }
-        button { border-radius: 9px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .primary-btn { background: #007bff; color: white; width: 100%; padding: 12px; font-size: 1.25rem; }
-        .secondary-btn { background: #444; color: white; padding: 6px 10px; font-size: 0.9rem; }
-        .exit-btn { background: #6c757d; color: white; padding: 6px 10px; font-size: 0.9rem; }
         
-        .promo-btn { color: white; padding: 8px 0; font-size: 0.95rem; text-decoration: none; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; min-width: 125px; }
+        button { border-radius: 9px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .primary-btn { background: #007bff; color: white; width: 100%; padding: 12px; font-size: 1.2rem; }
+        .secondary-btn { background: #444; color: white; padding: 6px 10px; font-size: 0.85rem; }
+        .exit-btn { background: #6c757d; color: white; padding: 6px 10px; font-size: 0.85rem; }
+        
+        .promo-btn { color: white; padding: 8px 0; font-size: 0.9rem; text-decoration: none; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; min-width: 120px; }
         .yt-btn { background: #ff0000; }
         .tw-btn { background: #9146ff; } 
 
         .header-info { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
         .info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; }
-        .room-code span { color: #f1c40f; font-weight: bold; font-size: 1.25rem; }
-        .credit-info { font-size: 0.88rem; color: #aaa; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; border: 1px solid #444; text-align: center; flex-grow: 1; }
+        .room-code span { color: #f1c40f; font-weight: bold; font-size: 1.2rem; }
+        .credit-info { font-size: 0.85rem; color: #aaa; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; border: 1px solid #444; text-align: center; flex-grow: 1; }
 
-        /* 側邊欄在線名單 */
-        .user-list-sidebar { width: 155px; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 12px; border: 1px solid #444; box-sizing: border-box; display: flex; flex-direction: column; }
-        .user-list-title { font-size: 0.9rem; font-weight: bold; color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; text-align: center; }
+        .user-list-sidebar { width: 150px; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 12px; border: 1px solid #444; box-sizing: border-box; display: flex; flex-direction: column; }
+        .user-list-title { font-size: 0.85rem; font-weight: bold; color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; text-align: center; }
         #userList { display: flex; flex-direction: column; gap: 7px; }
-        .user-badge { font-size: 0.9rem; padding: 6px; border-radius: 7px; color: #fff; font-weight: bold; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-badge { font-size: 0.85rem; padding: 6px; border-radius: 7px; color: #fff; font-weight: bold; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* 選色區 */
         .picker-bar { width: 100%; display: flex; gap: 10px; justify-content: center; align-items: center; background: #1a1a21; padding: 10px; border-radius: 11px; margin-bottom: 10px; box-sizing: border-box; }
-        #colorPicker { width: 42px; height: 42px; border: none; background: none; cursor: pointer; padding: 0; }
-        .status-tag { font-size: 0.9rem; padding: 4px 9px; border-radius: 6px; background: #444; }
+        #colorPicker { width: 40px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
+        .status-tag { font-size: 0.85rem; padding: 4px 9px; border-radius: 6px; background: #444; }
 
-        /* 平台按鈕表格 */
         table { width: 100%; border-spacing: 2.5px; table-layout: fixed; }
-        .floor-label { width: 38px; text-align: center; font-weight: bold; font-size: 1.05rem; color: #888; }
-        .p-btn { width: 100%; height: 41px; background: #3c3c46; border: none; border-radius: 8px; color: #fff !important; font-weight: bold; cursor: pointer; font-size: 1.4rem; position: relative; overflow: hidden; }
-        .user-tag { position: absolute; bottom: 1px; right: 2px; background: rgba(0, 0, 0, 0.75); color: white; font-size: 0.62rem; padding: 1px 3px; border-radius: 2px; pointer-events: none; }
+        .floor-label { width: 35px; text-align: center; font-weight: bold; font-size: 1rem; color: #888; }
+        .p-btn { width: 100%; height: 40px; background: #3c3c46; border: none; border-radius: 8px; color: #fff !important; font-weight: bold; cursor: pointer; font-size: 1.35rem; position: relative; overflow: hidden; }
+        .user-tag { position: absolute; bottom: 1px; right: 2px; background: rgba(0, 0, 0, 0.75); color: white; font-size: 0.6rem; padding: 1px 3px; border-radius: 2px; pointer-events: none; }
         
         .hidden { display: none !important; }
 
-        /* 手機自適應介面樣式 */
+        /* ====================================================== */
+        /* 手機版：維持原本較大的比例 (恢復為 1.05rem 基礎) */
+        /* ====================================================== */
         @media (max-width: 768px) {
-            body { padding: 5px; align-items: flex-start; }
+            body { padding: 5px; align-items: flex-start; font-size: 1.05rem; } 
             .container { width: 100%; padding: 15px 10px; border-radius: 0; box-shadow: none; background: #2d2d37; }
             #startView, #createView, #joinView, #nicknameView { width: 100%; }
             #mainGameView { flex-direction: column; align-items: center; width: 100%; gap: 10px; }
             .game-main-content { width: 100%; }
+            
             table { border-spacing: 4px; }
             .p-btn { height: 55px; font-size: 1.6rem; } 
             .floor-label { width: 45px; font-size: 1.1rem; }
+            
             .user-list-sidebar { width: 100%; margin-top: 10px; }
             #userList { flex-direction: row; flex-wrap: wrap; justify-content: center; }
             .info-row { flex-direction: column; gap: 10px; }
-            .promo-btn { width: 100%; }
+            .promo-btn { width: 100%; font-size: 1rem; }
+            .credit-info { font-size: 0.9rem; width: 100%; order: 3; }
         }
     </style>
 </head>
@@ -78,17 +105,20 @@
         <button class="primary-btn" onclick="showView('createView')">創建房間</button>
         <button class="primary-btn" onclick="showView('joinView')">加入房間</button>
     </div>
+
     <div id="createView" class="hidden">
-        <input type="tel" id="createPwd" placeholder="設定 4 碼密碼" maxlength="4" pattern="\d*">
+        <input type="tel" id="createPwd" placeholder="設定 4 碼數字密碼" maxlength="4" pattern="\d*">
         <button class="primary-btn" onclick="createRoom()">確認創建</button>
         <button class="secondary-btn" onclick="showView('startView')">返回</button>
     </div>
+
     <div id="joinView" class="hidden">
         <input type="tel" id="joinId" placeholder="房間號碼" pattern="\d*">
         <input type="tel" id="joinPwd" placeholder="密碼" maxlength="4" pattern="\d*">
         <button class="primary-btn" onclick="joinRoom()">加入</button>
         <button class="secondary-btn" onclick="showView('startView')">返回</button>
     </div>
+
     <div id="nicknameView" class="hidden">
         <p>房間：<span id="roomIdDisplay" style="color:#f1c40f">------</span></p>
         <input type="text" id="nicknameInput" placeholder="輸入暱稱" maxlength="6">
@@ -106,13 +136,14 @@
                 </div>
                 <div class="info-row">
                     <div class="credit-info">公會: MMDxD | 製作: 咖塔</div>
-                    <div class="action-group">
+                    <div class="action-group" style="display:flex; gap:5px;">
                         <button class="secondary-btn" style="background:#28a745;" onclick="copyShareLink()">分享</button>
                         <button class="secondary-btn" onclick="clearAllPlatforms()">清空</button>
                         <button class="exit-btn" onclick="leaveRoom()">離開</button>
                     </div>
                 </div>
             </div>
+            
             <div class="picker-bar">
                 <span>選你喜歡的顏色：</span>
                 <input type="color" id="colorPicker" value="#00EC00">
@@ -120,14 +151,17 @@
                 <button id="resetColorBtn" class="hidden secondary-btn" onclick="resetMyColor()">重選</button>
                 <div id="myColorStatus" class="hidden status-tag">已鎖定</div>
             </div>
+
             <table><tbody id="gridBody"></tbody></table>
         </div>
+
         <div class="user-list-sidebar">
             <div class="user-list-title">在線隊員</div>
             <div id="userList"></div>
         </div>
     </div>
 </div>
+
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="app.js"></script>
