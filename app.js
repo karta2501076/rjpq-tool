@@ -1,241 +1,218 @@
+// Firebase 配置 (請確保與你的 Firebase Console 資訊一致)
 const firebaseConfig = {
-  apiKey: "AIzaSyCpJmhpPRxgTSTpZi38DHCaV8ZaLhuKKTc",
-  authDomain: "rjpq-tool-2ee82.firebaseapp.com",
-  databaseURL: "https://rjpq-tool-2ee82-default-rtdb.firebaseio.com", 
-  projectId: "rjpq-tool-2ee82",
-  storageBucket: "rjpq-tool-2ee82.firebasestorage.app",
-  messagingSenderId: "349150642845",
-  appId: "1:349150642845:web:14fe4a135278f82cc40a74"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_ID",
+  appId: "YOUR_APP_ID"
 };
 
+// 初始化 Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-let currentRoomId = null, myNickname = "", myColor = null;
 
-window.onload = () => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('room')) { 
-        currentRoomId = params.get('room'); 
-        showView('nicknameView'); 
-    }
+// 全域變數
+let currentRoomId = null;
+let myNickname = "";
+let myColor = "";
+let isLocked = false;
 
-    window.addEventListener('keydown', (e) => {
-        if (currentRoomId && myColor && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-            if (['1', '2', '3', '4'].includes(e.key)) {
-                autoFillNextFloor(parseInt(e.key));
-            }
-        }
-    });
-};
+// 初始化表格
+const gridBody = document.getElementById('gridBody');
+for (let f = 10; f >= 1; f--) {
+    let row = document.createElement('tr');
+    row.innerHTML = `<td class="floor-label">F${f}</td>` + 
+        [1, 2, 3, 4].map(p => `<td><button id="btn_${f}_${p}" class="p-btn" onclick="togglePlatform(${f},${p})">${p}</button></td>`).join('');
+    gridBody.appendChild(row);
+}
 
+// 介面切換
 function showView(viewId) {
     ['startView', 'createView', 'joinView', 'nicknameView', 'mainGameView'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
+        document.getElementById(id).classList.add('hidden');
     });
     document.getElementById(viewId).classList.remove('hidden');
-    if (currentRoomId) {
-        document.getElementById('roomIdDisplay').innerText = currentRoomId;
-        document.getElementById('activeRoomId').innerText = currentRoomId;
-    }
 }
 
+// 創建房間
 function createRoom() {
     const pwd = document.getElementById('createPwd').value;
-    if (pwd.length !== 4) return alert("請輸入 4 位數密碼");
-    const id = Math.floor(1000 + Math.random() * 9000).toString();
-    currentRoomId = id;
-    db.ref('rooms/' + id).set({ 
+    if (pwd.length !== 4) return alert("請設定 4 碼密碼");
+    const newRoomId = Math.floor(1000 + Math.random() * 9000).toString();
+    db.ref(`rooms/${newRoomId}`).set({
         password: pwd,
-        colors: { init: "system" },
-        grid: { init: "system" }
-    }).then(() => showView('nicknameView'));
-}
-
-function joinRoom() {
-    const id = document.getElementById('joinId').value, pwd = document.getElementById('joinPwd').value;
-    db.ref('rooms/' + id).once('value', snap => {
-        const data = snap.val();
-        if (data && data.password === pwd) { 
-            currentRoomId = id; 
-            showView('nicknameView'); 
-        } else alert("房號或密碼錯誤");
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        currentRoomId = newRoomId;
+        document.getElementById('roomIdDisplay').innerText = newRoomId;
+        showView('nicknameView');
     });
 }
 
-function setNickname() {
-    const nick = document.getElementById('nicknameInput').value;
-    if (!nick) return alert("請輸入暱稱");
-    myNickname = nick; 
-    initGrid(); 
-    listenToRoom(); 
-    showView('mainGameView');
-}
-
-function pickCustomColor() {
-    if (!currentRoomId) return alert("房間資訊遺失");
-    const color = document.getElementById('colorPicker').value.toUpperCase();
-    const colorKey = color.replace('#', '');
-    db.ref(`rooms/${currentRoomId}/colors/${colorKey}`).transaction((val) => {
-        if (val === null) return myNickname; 
-        return; 
-    }, (err, committed, snap) => {
-        if (err) alert("選色同步失敗");
-        else if (!committed) alert(`顏色已被 ${snap.val()} 占用！`);
-        else {
-            myColor = color;
-            updateColorUI(true);
+// 加入房間
+function joinRoom() {
+    const id = document.getElementById('joinId').value;
+    const pwd = document.getElementById('joinPwd').value;
+    db.ref(`rooms/${id}`).once('value', snap => {
+        const data = snap.val();
+        if (data && data.password === pwd) {
+            currentRoomId = id;
+            document.getElementById('roomIdDisplay').innerText = id;
+            showView('nicknameView');
+        } else {
+            alert("房號或密碼錯誤");
         }
     });
 }
 
-function updateColorUI(isLocked) {
-    document.getElementById('colorPicker').disabled = isLocked;
-    document.getElementById('confirmColorBtn').classList.toggle('hidden', isLocked);
-    document.getElementById('resetColorBtn').classList.toggle('hidden', !isLocked);
-    const status = document.getElementById('myColorStatus');
-    status.classList.toggle('hidden', !isLocked);
-    if (isLocked) status.style.color = myColor;
+// 設定暱稱並進入
+function setNickname() {
+    const nick = document.getElementById('nicknameInput').value.trim();
+    if (!nick) return alert("請輸入暱稱");
+    myNickname = nick;
+    document.getElementById('activeRoomId').innerText = currentRoomId;
+    showView('mainGameView');
+    listenToRoom();
+}
+
+// 監聽房間動態
+function listenToRoom() {
+    // 監聽格子
+    db.ref(`rooms/${currentRoomId}/grid`).on('value', snap => {
+        const gridData = snap.val() || {};
+        // 先重置所有按鈕
+        document.querySelectorAll('.p-btn').forEach(btn => {
+            btn.style.backgroundColor = "";
+            const tag = btn.querySelector('.user-tag');
+            if (tag) tag.remove();
+        });
+        // 渲染新資料
+        Object.keys(gridData).forEach(key => {
+            const [f, p] = key.split('_');
+            const btn = document.getElementById(`btn_${f}_${p}`);
+            if (btn) {
+                btn.style.backgroundColor = gridData[key].color;
+                btn.innerHTML = `${p}<div class="user-tag">${gridData[key].user}</div>`;
+            }
+        });
+    });
+
+    // 監聽在線成員
+    const presenceRef = db.ref(`rooms/${currentRoomId}/users/${myNickname}`);
+    presenceRef.set({ color: myColor || "#555" });
+    presenceRef.onDisconnect().remove();
+
+    db.ref(`rooms/${currentRoomId}/users`).on('value', snap => {
+        const users = snap.val() || {};
+        const listDiv = document.getElementById('userList');
+        listDiv.innerHTML = "";
+        Object.keys(users).forEach(u => {
+            const badge = document.createElement('div');
+            badge.className = 'user-badge';
+            badge.style.backgroundColor = users[u].color;
+            badge.innerText = u;
+            listDiv.appendChild(badge);
+        });
+    });
+}
+
+// 選色邏輯
+function pickCustomColor() {
+    myColor = document.getElementById('colorPicker').value;
+    isLocked = true;
+    document.getElementById('myColorStatus').classList.remove('hidden');
+    document.getElementById('confirmColorBtn').classList.add('hidden');
+    document.getElementById('resetColorBtn').classList.remove('hidden');
+    // 更新在線列表顏色
+    db.ref(`rooms/${currentRoomId}/users/${myNickname}`).update({ color: myColor });
 }
 
 function resetMyColor() {
-    if (!myColor) return;
-    if (confirm("更換顏色將清空你目前的標記，確定嗎？")) {
-        const cId = currentRoomId;
-        const targetColor = myColor;
-        db.ref(`rooms/${cId}/colors/${targetColor.replace('#', '')}`).remove();
-        db.ref(`rooms/${cId}/grid`).once('value', snap => {
-            const data = snap.val();
-            if (data) Object.keys(data).forEach(k => { 
-                if (data[k].color === targetColor) db.ref(`rooms/${cId}/grid/${k}`).remove(); 
-            });
-        });
-        myColor = null;
-        updateColorUI(false);
-    }
+    isLocked = false;
+    document.getElementById('myColorStatus').classList.add('hidden');
+    document.getElementById('confirmColorBtn').classList.remove('hidden');
+    document.getElementById('resetColorBtn').classList.add('hidden');
 }
 
-function leaveRoom() {
-    if (currentRoomId && !confirm("確定要離開房間嗎？標記將被清除。")) return;
-    
-    const rid = currentRoomId;
-    const mColor = myColor;
-
-    if (rid && mColor) {
-        // 1. 移除顏色並檢查是否為最後一人
-        db.ref(`rooms/${rid}/colors/${mColor.replace('#', '')}`).remove().then(() => {
-            db.ref(`rooms/${rid}/colors`).once('value', snap => {
-                const colors = snap.val();
-                // 如果只剩下 init 標記，代表沒人了，直接移除房間節點
-                if (!colors || Object.keys(colors).length <= 1) {
-                    db.ref(`rooms/${rid}`).remove();
-                }
-            });
-        });
-
-        // 2. 移除格子標記
-        db.ref(`rooms/${rid}/grid`).once('value', snap => {
-            const data = snap.val();
-            if (data) Object.keys(data).forEach(k => { 
-                if (data[k].color === mColor) db.ref(`rooms/${rid}/grid/${k}`).remove(); 
-            });
-        });
-    }
-
-    // 3. 清理本機狀態
-    if (currentRoomId) {
-        db.ref(`rooms/${currentRoomId}/grid`).off();
-        db.ref(`rooms/${currentRoomId}/colors`).off();
-    }
-    currentRoomId = null; myNickname = ""; myColor = null;
-    updateColorUI(false);
-    const url = new URL(window.location);
-    url.searchParams.delete('room');
-    window.history.pushState({}, '', url);
-    showView('startView');
+// 點擊格子填色
+function togglePlatform(f, p) {
+    if (!isLocked) return alert("請先選定顏色並點擊確認");
+    const targetRef = db.ref(`rooms/${currentRoomId}/grid/${f}_${p}`);
+    targetRef.once('value', snap => {
+        if (snap.exists()) {
+            targetRef.remove(); // 點擊已填色的格子則取消
+        } else {
+            targetRef.set({ user: myNickname, color: myColor });
+        }
+    });
 }
 
-function autoFillNextFloor(platformNum) {
+// 快捷鍵 1~4 填色
+function autoFillNextFloor(platform) {
+    if (!isLocked) return;
     db.ref(`rooms/${currentRoomId}/grid`).once('value', snap => {
         const gridData = snap.val() || {};
-        let targetFloor = null;
+        // 由下往上找第一個空的
         for (let f = 1; f <= 10; f++) {
-            let filled = false;
+            if (!gridData[`${f}_${platform}`]) {
+                db.ref(`rooms/${currentRoomId}/grid/${f}_${platform}`).set({
+                    user: myNickname,
+                    color: myColor
+                });
+                break;
+            }
+        }
+    });
+}
+
+// 快捷鍵 0 取消上一層 (核心更新)
+function undoLastFill() {
+    if (!currentRoomId || !myNickname) return;
+    db.ref(`rooms/${currentRoomId}/grid`).once('value', snap => {
+        const gridData = snap.val() || {};
+        // 從頂樓 10 往底樓 1 找
+        for (let f = 10; f >= 1; f--) {
             for (let p = 1; p <= 4; p++) {
-                if (gridData[`${f}_${p}`] && gridData[`${f}_${p}`].color === myColor) {
-                    filled = true; break;
+                const targetKey = `${f}_${p}`;
+                // 檢查這格是不是自己填的 (比對暱稱或顏色)
+                if (gridData[targetKey] && gridData[targetKey].user === myNickname) {
+                    db.ref(`rooms/${currentRoomId}/grid/${targetKey}`).remove();
+                    return; // 只刪除一格後立即跳出
                 }
             }
-            if (!filled) { targetFloor = f; break; }
-        }
-        if (targetFloor) togglePlatform(targetFloor, platformNum);
-    });
-}
-
-function togglePlatform(f, p) {
-    if (!myColor) return alert("請先確認顏色！");
-    const path = `${f}_${p}`, ref = db.ref(`rooms/${currentRoomId}/grid/${path}`);
-    ref.once('value', snap => {
-        const val = snap.val();
-        if (val && val.color === myColor) ref.remove();
-        else if (!val) {
-            db.ref(`rooms/${currentRoomId}/grid`).once('value', gSnap => {
-                const gData = gSnap.val() || {};
-                Object.keys(gData).forEach(k => { 
-                    if (k.startsWith(f + "_") && gData[k].color === myColor) db.ref(`rooms/${currentRoomId}/grid/${k}`).remove(); 
-                });
-                ref.set({ color: myColor, nickname: myNickname });
-            });
         }
     });
 }
 
-function listenToRoom() {
-    db.ref(`rooms/${currentRoomId}/grid`).on('value', snap => {
-        document.querySelectorAll('.p-btn').forEach(b => { 
-            b.style.backgroundColor = ""; b.innerHTML = b.id.split('-')[2]; 
-        });
-        const data = snap.val();
-        if (data) Object.keys(data).forEach(k => {
-            if (k === "init") return;
-            const btn = document.getElementById(`btn-${k.replace('_', '-')}`);
-            if (btn) {
-                btn.style.backgroundColor = data[k].color;
-                btn.innerHTML += `<span class="user-tag">${data[k].nickname}</span>`;
-            }
-        });
-    });
-
-    db.ref(`rooms/${currentRoomId}/colors`).on('value', snap => {
-        const userListEl = document.getElementById('userList');
-        userListEl.innerHTML = "";
-        const data = snap.val();
-        if (data) {
-            Object.keys(data).forEach(colorKey => {
-                if (colorKey === "init") return;
-                const badge = document.createElement('div');
-                badge.className = "user-badge";
-                badge.style.backgroundColor = "#" + colorKey;
-                badge.innerText = data[colorKey];
-                userListEl.appendChild(badge);
-            });
-        }
-    });
-}
-
-function clearAllPlatforms() { if (confirm("確定清空全體標記嗎？")) db.ref(`rooms/${currentRoomId}/grid`).set({ init: "system" }); }
-function copyShareLink() {
-    navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?room=" + currentRoomId).then(() => alert("連結已複製"));
-}
-
-function initGrid() {
-    const tbody = document.getElementById('gridBody'); tbody.innerHTML = "";
-    for (let f = 10; f >= 1; f--) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="floor-label">F${f}</td>` + 
-            [1,2,3,4].map(p => `<td><button class="p-btn" id="btn-${f}-${p}" onclick="togglePlatform(${f},${p})">${p}</button></td>`).join('');
-        tbody.appendChild(tr);
+// 鍵盤監聽
+window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    const key = e.key;
+    if (['1', '2', '3', '4'].includes(key)) {
+        autoFillNextFloor(parseInt(key));
+    } else if (key === '0') {
+        undoLastFill();
     }
+});
+
+// 清空全部
+function clearAllPlatforms() {
+    if (confirm("確定要清空所有樓層嗎？")) {
+        db.ref(`rooms/${currentRoomId}/grid`).remove();
+    }
+}
+
+// 離開房間
+function leaveRoom() {
+    location.reload();
+}
+
+// 分享連結
+function copyShareLink() {
+    const link = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
+    navigator.clipboard.writeText(link).then(() => alert("房間連結已複製！"));
 }
