@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>超讚RJPQ小工具</title>
     <style>
-        /* 基礎設定 */
+        /* 基礎樣式與 1.05 倍字體 */
         body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; background: #1a1a21; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; font-size: 1.05rem; overflow-x: hidden; overflow-y: auto; }
         .container { background: #2d2d37; padding: 18px 22px; border-radius: 16px; box-shadow: 0 6px 25px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; }
         
         h2 { margin: 0; color: #fff; font-size: 1.58rem; } 
         .hint-text { font-size: 0.78rem; color: #aaa; margin-bottom: 10px; font-weight: bold; text-align: center; }
         
-        /* 視圖控制 */
+        /* 視圖切換與寬度設定 */
         #startView, #createView, #joinView, #nicknameView { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 380px; }
         #mainGameView { display: flex; flex-direction: row; gap: 15px; align-items: flex-start; }
         .game-main-content { display: flex; flex-direction: column; align-items: center; width: 445px; }
 
-        /* 輸入框與按鈕 */
+        /* 輸入框設定 16px 防止 iOS 點擊時自動縮放畫面 */
         input { width: 90%; padding: 10px; border-radius: 9px; border: 1px solid #444; background: #1a1a21; color: #fff; font-size: 16px; box-sizing: border-box; }
         button { border-radius: 9px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .primary-btn { background: #007bff; color: white; width: 100%; padding: 12px; font-size: 1.25rem; }
@@ -33,7 +33,7 @@
         .room-code span { color: #f1c40f; font-weight: bold; font-size: 1.25rem; }
         .credit-info { font-size: 0.88rem; color: #aaa; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; border: 1px solid #444; text-align: center; flex-grow: 1; }
 
-        /* 側邊欄 */
+        /* 側邊欄在線名單 */
         .user-list-sidebar { width: 155px; background: rgba(0,0,0,0.35); padding: 12px; border-radius: 12px; border: 1px solid #444; box-sizing: border-box; display: flex; flex-direction: column; }
         .user-list-title { font-size: 0.9rem; font-weight: bold; color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; text-align: center; }
         #userList { display: flex; flex-direction: column; gap: 7px; }
@@ -44,7 +44,7 @@
         #colorPicker { width: 42px; height: 42px; border: none; background: none; cursor: pointer; padding: 0; }
         .status-tag { font-size: 0.9rem; padding: 4px 9px; border-radius: 6px; background: #444; }
 
-        /* 表格與按鈕 */
+        /* 平台按鈕表格 */
         table { width: 100%; border-spacing: 2.5px; table-layout: fixed; }
         .floor-label { width: 38px; text-align: center; font-weight: bold; font-size: 1.05rem; color: #888; }
         .p-btn { width: 100%; height: 41px; background: #3c3c46; border: none; border-radius: 8px; color: #fff !important; font-weight: bold; cursor: pointer; font-size: 1.4rem; position: relative; overflow: hidden; }
@@ -52,45 +52,34 @@
         
         .hidden { display: none !important; }
 
-        /* ====================================================== */
-        /* 手機專屬介面 (RWD) - 當寬度小於 768px 時觸發 */
-        /* ====================================================== */
+        /* 手機自適應介面樣式 */
         @media (max-width: 768px) {
             body { padding: 5px; align-items: flex-start; }
             .container { width: 100%; padding: 15px 10px; border-radius: 0; box-shadow: none; background: #2d2d37; }
-            
             #startView, #createView, #joinView, #nicknameView { width: 100%; }
             #mainGameView { flex-direction: column; align-items: center; width: 100%; gap: 10px; }
             .game-main-content { width: 100%; }
-            
-            /* 讓表格填滿手機寬度 */
             table { border-spacing: 4px; }
-            .p-btn { height: 55px; font-size: 1.6rem; } /* 加大按鈕方便點擊 */
+            .p-btn { height: 55px; font-size: 1.6rem; } 
             .floor-label { width: 45px; font-size: 1.1rem; }
-
-            /* 側邊欄改為橫向排列或滿版 */
             .user-list-sidebar { width: 100%; margin-top: 10px; }
             #userList { flex-direction: row; flex-wrap: wrap; justify-content: center; }
-            .user-badge { min-width: 80px; }
-
-            /* 頂部資訊列改為垂直堆疊以防溢出 */
             .info-row { flex-direction: column; gap: 10px; }
             .promo-btn { width: 100%; }
-            .credit-info { order: 3; width: 100%; }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <h2>超讚RJPQ小工具</h2>
-    <div class="hint-text">鍵盤快捷鍵: 1~4 填色，0 取消上一層<br>(現在手機也能用囉)</div>
+    <div class="hint-text">快捷鍵: 1~4 填色，0 取消上一層<br>(手機用戶點擊位置或雙指縮放)</div>
 
     <div id="startView">
         <button class="primary-btn" onclick="showView('createView')">創建房間</button>
         <button class="primary-btn" onclick="showView('joinView')">加入房間</button>
     </div>
     <div id="createView" class="hidden">
-        <input type="tel" id="createPwd" placeholder="設定 4 碼數字密碼" maxlength="4" pattern="\d*">
+        <input type="tel" id="createPwd" placeholder="設定 4 碼密碼" maxlength="4" pattern="\d*">
         <button class="primary-btn" onclick="createRoom()">確認創建</button>
         <button class="secondary-btn" onclick="showView('startView')">返回</button>
     </div>
@@ -103,7 +92,7 @@
     <div id="nicknameView" class="hidden">
         <p>房間：<span id="roomIdDisplay" style="color:#f1c40f">------</span></p>
         <input type="text" id="nicknameInput" placeholder="輸入暱稱" maxlength="6">
-        <button class="primary-btn" onclick="setNickname()">加入</button>
+        <button class="primary-btn" onclick="setNickname()">開始同步</button>
         <button class="secondary-btn" onclick="leaveRoom()">取消</button>
     </div>
 
@@ -112,12 +101,12 @@
             <div class="header-info">
                 <div class="info-row">
                     <div class="room-code">房號：<span id="activeRoomId">------</span></div>
-                    <a href="https://www.youtube.com/@yulihong22" target="_blank" class="promo-btn yt-btn">咪咪蛋的YT</a>
-                    <a href="https://www.twitch.tv/yulihong22" target="_blank" class="promo-btn tw-btn">咪咪蛋的Twitch</a>
+                    <a href="https://www.youtube.com/@yulihong22" target="_blank" class="promo-btn yt-btn">咪咪蛋的 YT</a>
+                    <a href="https://www.twitch.tv/yulihong22" target="_blank" class="promo-btn tw-btn">咪咪蛋 Twitch</a>
                 </div>
                 <div class="info-row">
                     <div class="credit-info">公會: MMDxD | 製作: 咖塔</div>
-                    <div class="action-group" style="display:flex; gap:5px;">
+                    <div class="action-group">
                         <button class="secondary-btn" style="background:#28a745;" onclick="copyShareLink()">分享</button>
                         <button class="secondary-btn" onclick="clearAllPlatforms()">清空</button>
                         <button class="exit-btn" onclick="leaveRoom()">離開</button>
@@ -125,7 +114,7 @@
                 </div>
             </div>
             <div class="picker-bar">
-                <span>選你喜歡的顏色：</span>
+                <span>選色：</span>
                 <input type="color" id="colorPicker" value="#00EC00">
                 <button id="confirmColorBtn" class="secondary-btn" style="background:#007bff;" onclick="pickCustomColor()">確認</button>
                 <button id="resetColorBtn" class="hidden secondary-btn" onclick="resetMyColor()">重選</button>
