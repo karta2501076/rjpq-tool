@@ -68,13 +68,13 @@
         
         #startView, #createView, #joinView, #nicknameView { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 380px; }
         
-        /* === 關鍵修改：房間內 UI 放大 1.05 倍 === */
+        /* === 房間內 UI 調整為 1.02 倍 === */
         #mainGameView { 
             display: flex; 
             flex-direction: row; 
             gap: 15px; 
             align-items: flex-start; 
-            zoom: 1.05; /* 整體放大 1.05 倍 */
+            zoom: 1.02; 
         }
         .game-main-content { display: flex; flex-direction: column; align-items: center; width: 445px; }
 
@@ -126,9 +126,6 @@
         .tw-btn { background: #9146ff; color: white !important; min-width: 120px; padding: 8px 0; font-size: 0.9rem; box-shadow: 0 4px 0 #5c2db3; }
         .tw-btn:active { top: 3px; box-shadow: 0 1px 0 #5c2db3; }
 
-        /* ====================================================== */
-        /* 遊戲內資訊列與網格 */
-        /* ====================================================== */
         .header-info { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
         .info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; }
         .room-code span { color: #f1c40f; font-weight: bold; font-size: 1.2rem; }
@@ -139,9 +136,6 @@
         #userList { display: flex; flex-direction: column; gap: 7px; }
         .user-badge { font-size: 0.85rem; padding: 6px; border-radius: 7px; color: #fff; font-weight: bold; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        .picker-bar { width: 100%; display: flex; gap: 10px; justify-content: center; align-items: center; background: #1a1a21; padding: 10px; border-radius: 11px; margin-bottom: 10px; box-sizing: border-box; }
-        #colorPicker { width: 40px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
-        
         table { width: 100%; border-spacing: 2.5px; table-layout: fixed; }
         .floor-label { width: 35px; text-align: center; font-weight: bold; font-size: 1rem; color: #888; }
         
@@ -165,7 +159,6 @@
             body { padding: 5px; align-items: flex-start; } 
             .container { width: 100%; padding: 15px 10px; border-radius: 0; }
             .home-large-title h2 { font-size: 1.8rem; }
-            /* 手機版不建議放大 1.05 倍，以免寬度溢出 */
             #mainGameView { flex-direction: column; width: 100%; zoom: 1; }
             .game-main-content { width: 100%; }
             .p-btn { height: 55px; font-size: 1.6rem; } 
@@ -223,18 +216,8 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="picker-bar">
-                <span>選擇顏色：</span>
-                <input type="color" id="colorPicker" value="#00EC00">
-                <button id="confirmColorBtn" class="secondary-btn" style="background:#007bff; box-shadow: 0 3px 0 #0056b3;" onclick="pickCustomColor()">確認</button>
-                <button id="resetColorBtn" class="hidden secondary-btn" onclick="resetMyColor()">重選</button>
-                <div id="myColorStatus" class="hidden status-tag">已鎖定</div>
-            </div>
-
             <table><tbody id="gridBody"></tbody></table>
         </div>
-
         <div class="user-list-sidebar">
             <div class="user-list-title">在線隊員</div>
             <div id="userList"></div>
