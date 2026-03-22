@@ -81,7 +81,7 @@
         /* 藍色大按鈕 (創建/加入) */
         .primary-btn { 
             background: #007bff; 
-            color: white; 
+            color: white !important; 
             width: 100%; 
             padding: 12px; 
             font-size: 1.2rem;
@@ -94,7 +94,7 @@
         /* 灰色小按鈕 (返回/清空) */
         .secondary-btn { 
             background: #444; 
-            color: white; 
+            color: white !important; 
             padding: 6px 12px; 
             font-size: 0.85rem; 
             box-shadow: 0 3px 0 #222;
@@ -105,7 +105,7 @@
         /* 綠色分享按鈕 */
         .share-btn {
             background: #28a745;
-            color: white;
+            color: white !important;
             padding: 6px 12px;
             font-size: 0.85rem;
             box-shadow: 0 3px 0 #1e7e34;
@@ -116,7 +116,7 @@
         /* 離開按鈕 */
         .exit-btn { 
             background: #6c757d; 
-            color: white; 
+            color: white !important; 
             padding: 6px 12px; 
             font-size: 0.85rem;
             box-shadow: 0 3px 0 #444;
@@ -127,7 +127,7 @@
         /* 咪咪蛋 YouTube (紅色) */
         .yt-btn { 
             background: #ff0000; 
-            color: white;
+            color: white !important;
             min-width: 120px;
             padding: 8px 0;
             font-size: 0.9rem;
@@ -139,7 +139,7 @@
         /* 咪咪蛋 Twitch (紫色) */
         .tw-btn { 
             background: #9146ff; 
-            color: white;
+            color: white !important;
             min-width: 120px;
             padding: 8px 0;
             font-size: 0.9rem;
@@ -164,7 +164,7 @@
         .picker-bar { width: 100%; display: flex; gap: 10px; justify-content: center; align-items: center; background: #1a1a21; padding: 10px; border-radius: 11px; margin-bottom: 10px; box-sizing: border-box; }
         #colorPicker { width: 40px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
         
-        /* 遊戲網格按鈕 */
+        /* 遊戲網格按鈕 - 修正數字顏色 */
         table { width: 100%; border-spacing: 2.5px; table-layout: fixed; }
         .floor-label { width: 35px; text-align: center; font-weight: bold; font-size: 1rem; color: #888; }
         
@@ -172,6 +172,7 @@
             width: 100%; 
             height: 40px; 
             background: #3c3c46; 
+            color: #fff !important; /* 強制換回白色文字 */
             font-size: 1.35rem; 
             box-shadow: 0 4px 0 #2a2a32; 
         }
