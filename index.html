@@ -36,22 +36,25 @@
         }
         
         h2 { margin: 0; color: #fff; font-size: 1.5rem; } 
-        
-        /* 增加首頁圖片容器 */
-        .home-logo-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-top: 5px;
-            margin-bottom: 10px;
-        }
-        .home-logo {
-            max-width: 250px;
-            height: auto;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+
+        /* 首頁專屬歡迎文字 */
+        .welcome-text {
+            color: #fff;
+            font-size: 1.2rem;
+            margin: 15px 0 5px 0;
+            font-weight: bold;
+            text-align: center;
         }
 
-        .hint-text { font-size: 0.75rem; color: #aaa; margin-bottom: 15px; font-weight: bold; text-align: center; }
+        /* 全域提示訊息 (灰色小字) */
+        .hint-text { 
+            font-size: 0.75rem; 
+            color: #888; 
+            margin-bottom: 15px; 
+            font-weight: normal; 
+            text-align: center; 
+            line-height: 1.4;
+        }
         
         #startView, #createView, #joinView, #nicknameView { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 380px; }
         #mainGameView { display: flex; flex-direction: row; gap: 15px; align-items: flex-start; }
@@ -70,14 +73,13 @@
             transition: all 0.1s ease;
         }
 
-        /* 主按鈕 (創建/加入) 的 3D 效果 */
         .primary-btn { 
             background: #007bff; 
             color: white; 
             width: 100%; 
             padding: 12px; 
             font-size: 1.2rem;
-            box-shadow: 0 5px 0 #004a99; /* 底部厚度 */
+            box-shadow: 0 5px 0 #004a99; 
             margin-bottom: 5px;
         }
         .primary-btn:hover { top: -2px; box-shadow: 0 7px 0 #004a99; }
@@ -121,7 +123,7 @@
         #colorPicker { width: 40px; height: 40px; border: none; background: none; cursor: pointer; padding: 0; }
         .status-tag { font-size: 0.85rem; padding: 4px 9px; border-radius: 6px; background: #444; }
 
-        /* === 遊戲網格按鈕 (核心 3D 效果) === */
+        /* === 遊戲網格按鈕 === */
         table { width: 100%; border-spacing: 2.5px; table-layout: fixed; }
         .floor-label { width: 35px; text-align: center; font-weight: bold; font-size: 1rem; color: #888; }
         
@@ -137,21 +139,13 @@
             font-size: 1.35rem; 
             position: relative; 
             overflow: hidden; 
-            box-shadow: 0 4px 0 #2a2a32; /* 未點擊時的厚度 */
+            box-shadow: 0 4px 0 #2a2a32; 
             top: 0;
             transition: all 0.1s;
         }
         .p-btn:hover { top: -1px; box-shadow: 0 5px 0 #2a2a32; }
-        .p-btn:active { 
-            top: 3px; /* 按下位移 */
-            box-shadow: 0 1px 0 #2a2a32; /* 按下厚度減少 */
-        }
+        .p-btn:active { top: 3px; box-shadow: 0 1px 0 #2a2a32; }
         
-        /* 填色後的按鈕陰影調整 */
-        .p-btn[style*="background-color"]:active {
-            box-shadow: 0 1px 0 rgba(0,0,0,0.3);
-        }
-
         .user-tag { position: absolute; bottom: 1px; right: 2px; background: rgba(0, 0, 0, 0.75); color: white; font-size: 0.6rem; padding: 1px 3px; border-radius: 2px; pointer-events: none; }
         
         .hidden { display: none !important; }
@@ -183,11 +177,9 @@
 <div class="container">
     <h2>超讚RJPQ小工具</h2>
     
-    <div class="home-logo-container">
-        <img src="mmdxd_logo.png" alt="MMDxD Logo" class="home-logo">
-    </div>
+    <div id="welcomeMsg" class="welcome-text">Hi 我是咖塔<br>祝您小工具用的愉快</div>
 
-    <div class="hint-text">鍵盤快捷鍵: 1~4 填色，0 取消上一層<br>(點擊按鈕有真實按壓感囉！)</div>
+    <div class="hint-text">快捷鍵: 1~4 可快速填色，0 取消上一層填色<br>(現在手機也能用囉)</div>
 
     <div id="startView">
         <button class="primary-btn" onclick="showView('createView')">創建房間</button>
@@ -253,5 +245,14 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="app.js"></script>
+<script>
+    const originalShowView = showView;
+    showView = (viewId) => {
+        originalShowView(viewId);
+        const welcome = document.getElementById('welcomeMsg');
+        if (viewId === 'mainGameView') welcome.classList.add('hidden');
+        else if (viewId === 'startView') welcome.classList.remove('hidden');
+    };
+</script>
 </body>
 </html>
